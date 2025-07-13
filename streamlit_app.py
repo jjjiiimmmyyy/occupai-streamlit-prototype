@@ -3,7 +3,10 @@ import openai
 import os
 
 # Load the OpenAI API key from environment variables
-openai.api_key = os.getenv("OPENAI_API_KEY")
+from openai import OpenAI
+import os
+
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY")
 
 st.title("OccuPAI - Job Task Analyzer")
 
