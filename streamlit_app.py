@@ -1,35 +1,41 @@
 import streamlit as st
-import openai
-import os
-
-# Load the OpenAI API key from environment variables
 from openai import OpenAI
 import os
 
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY")
+# Initialize OpenAI client with API key from environment
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-st.title("OccuPAI - Job Task Analyzer")
+# Streamlit UI
+st.title("OccupAI™ Task Analyzer")
 
-task = st.text_area("Describe your task", height=150)
-tool = st.text_area("Describe the AI prompt or tool you used", height=100)
+st.write("### Describe your task")
+task_input = st.text_area("What are you working on?", height=180)
+
+st.write("### Describe the AI prompt or tool you used")
+tool_input = st.text_area("What prompt or tool did you use?", height=120)
 
 if st.button("🔍 Analyze Task"):
-    if not task or not tool:
-        st.warning("Please fill in both fields before submitting.")
+    if not task_input.strip() or not tool_input.strip():
+        st.warning("Please fill in both fields.")
     else:
-        with st.spinner("Analyzing..."):
+        with st.spinner("Analyzing your task..."):
             try:
-                # This uses the new SDK method
-                response = openai.chat.completions.create(
+                response = client.chat.completions.create(
                     model="gpt-4",
                     messages=[
-                        {"role": "system", "content": "You are an AI job analyst. Evaluate the task and prompt."},
-                        {"role": "user", "content": f"Task: {task}\n\nTool: {tool}\n\nGive feedback on effectiveness and potential improvements."}
+                        {
+                            "role": "system",
+                            "content": "You are an expert at classifying and evaluating modern AI tasks across productivity, creativity, and research. Analyze the user's task and tool."
+                        },
+                        {
+                            "role": "user",
+                            "content": f"Task: {task_input}\n\nTool or Prompt Used: {tool_input}"
+                        }
                     ],
-                    temperature=0.7,
+                    temperature=0.6
                 )
-                st.success("✅ Analysis Complete")
-                st.markdown("### 💬 AI Feedback")
-                st.write(response.choices[0].message.content)
+                result = response.choices[0].message.content
+                st.success("Analysis complete:")
+                st.markdown(result)
             except Exception as e:
-                st.error(f"⚠️ Error: {e}")
+                st.error(f"Something went wrong: {e}")
